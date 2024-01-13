@@ -89,20 +89,39 @@ def deal_cards(n, deck):
     for i in range(n):
         cards.append(deck.pop())
     return cards
-def print_hand(hand):
+def string_hand(hand):
     string = ''
     for card in hand:
         string += f'{card[0]}{card[1]} '
-    print(string)
+    return (string)
+
+play_again = True
+while (play_again):
+    deck = make_deck()
+    straights = make_straights(ranks)
+    rank_order = order_ranks(ranks)
+    random.shuffle(deck)
+    hand = deal_cards(5, deck)
+    hand = sort_hand(hand)
+    print(string_hand(hand))
+    hand_ID = (identify_hand(hand))
+    print(f'{hand_ID[0]}: {', '.join(hand_ID[1])}')
+    player_draw = input("Discard/Draw? Enter card(s) 1-5 to discard or <enter> for none: ")
+    player_draw = [hand[int(x)-1] for x in player_draw]
+    for card in player_draw:
+        hand.remove(card)
+    print(f'Discarded: {string_hand(player_draw)}')
+    drawn = deal_cards(len(player_draw), deck)
+    print(f'Drew: {string_hand(drawn)}')
+    hand += drawn
+    hand = sort_hand(hand)
+    print(string_hand(hand))
+    hand_ID = (identify_hand(hand))
+    print(f'{hand_ID[0]}: {', '.join(hand_ID[1])}\n')
+    again = input("Play again? <enter> for YES, n<enter> for NO: ")
+    if again.lower() == 'n':
+        play_again = False
+    else:
+        print('')
 
 
-deck = make_deck()
-straights = make_straights(ranks)
-rank_order = order_ranks(ranks)
-random.shuffle(deck)
-hand = deal_cards(5, deck)
-hand = sort_hand(hand)
-print(hand)
-print_hand(hand)
-hand_ID = (identify_hand(hand))
-print(f'{hand_ID[0]}: {', '.join(hand_ID[1])}')
