@@ -35,6 +35,26 @@ def get_pairs(hand):
     if len(set(ranks)) == 4:  # one pair
         return ([ranks[0]], ranks[2:])
 
+def get_single(hand):
+    return list(map(lambda x: rank_orders[x[0]], hand))
+
+def make_tiers(hand_list, place, list_of_all_hands):
+    sorted_list = sorted(hand_list, key=lambda x: (x[1]['tier0'], x[1]['tier1']))
+    current = sorted_list[0][1]['tier1']
+    ties = 0
+    for item in sorted_list:
+        ties += 1
+        if item[1]['tier1'] != current:
+            place += ties - 1
+            ties = 1
+            current = item[1]['tier1']
+        item[1]['place'] = place
+    place += 1
+    list_of_all_hands += sorted_list
+    print(f"{sorted_list[0]}")
+    print(list_of_all_hands[-1])
+    return place
+
 
 hand_types = list(data.keys())[:-1]  # data includes an 'all' key which is all hands, not wanted here
 for index, rank in enumerate(ranks[-1::-1]):  # set rank orders: A = 0, K = 1...
@@ -53,131 +73,52 @@ hand_sort_dict = {"straight flush": get_straight_high,  # not yet implemented
                   "pair": get_pairs,
                   "single": 'tbd'}
 
+place = 0
+
 # STRAIGHT FLUSHES:
 straight_flush_list = [(hand, {'tier0': 0, 'tier1': get_straight_high(hand)}) for hand in data["straight flush"]]
-sorted_sf = sorted(straight_flush_list, key=lambda x: (x[1]['tier0'], x[1]['tier1']))
-place = 0
-for item in sorted_sf:
-    if item[1]['tier1'] > place:
-        place += 1
-    item[1]['place'] = place
-list_of_all_hands += sorted_sf
-print(f"Straight flush:\n{sorted_sf[0]}")
-print(list_of_all_hands[-1])
+print("Straight flush:")
+place = make_tiers(straight_flush_list, place, list_of_all_hands)
 
 # FOUR OF A KIND:
 four_list = [(hand, {'tier0': 1, 'tier1': get_n(hand)}) for hand in data["four kind"]]
-sorted_four = sorted(four_list, key=lambda x: (x[1]['tier0'], x[1]['tier1']))
-
-place = 10
-current = sorted_four[0][1]['tier1']
-for item in sorted_four:
-    if item[1]['tier1'] != current:
-        place += 1
-        current = item[1]['tier1']
-    item[1]['place'] = place
-list_of_all_hands += sorted_four
-print(f"Four of a kind:\n{sorted_four[0]}")
-print(list_of_all_hands[-1])
+print("Four of a kind:")
+place = make_tiers(four_list, place, list_of_all_hands)
 
 # FULL HOUSE:
 full_list = [(hand, {'tier0':2, 'tier1':get_n(hand)}) for hand in data["full house"]]
-sorted_full = sorted(full_list, key = lambda x: (x[1]['tier0'], x[1]['tier1']))
-place = 23
-current = sorted_full[0][1]['tier1']
-for item in sorted_full:
-    if item[1]['tier1'] != current:
-        place += 1
-        current = item[1]['tier1']
-    item[1]['place'] = place
-list_of_all_hands += sorted_full
-print(f"Full house:\n{sorted_full[0]}")
-print(list_of_all_hands[-1])
+print("Full house:")
+place = make_tiers(full_list, place, list_of_all_hands)
 
 # FLUSH:
-flush_list = [(hand, {'tier0': 3, 'tier1': list(map(lambda x: rank_orders[x[0]], hand))}) for hand in data["flush"]]
-sorted_flush = sorted(flush_list, key = lambda x: (x[1]['tier0'], x[1]['tier1']))
-place = 36
-current = sorted_flush[0][1]['tier1']
-for item in sorted_flush:
-    if item[1]['tier1'] != current:
-        place += 1
-        current = item[1]['tier1']
-    item[1]['place'] = place
-list_of_all_hands += sorted_flush
-print(f"Flush:\n{sorted_flush[0]}")
-print(list_of_all_hands[-1])
-
+flush_list = [(hand, {'tier0': 3, 'tier1': get_single(hand)}) for hand in data["flush"]]
+print("Flush:")
+place = make_tiers(flush_list, place, list_of_all_hands)
 
 # STRAIGHT:
 straight_list = [(hand, {'tier0': 4, 'tier1': get_straight_high(hand)}) for hand in data["straight"]]
-sorted_straight = sorted(straight_list, key = lambda x: (x[1]['tier0'], x[1]['tier1']))
-place = 1313
-current = sorted_straight[0][1]['tier1']
-for item in sorted_straight:
-    if item[1]['tier1'] > current:
-        place += 1
-        current = item[1]['tier1']
-    item[1]['place'] = place
-list_of_all_hands += sorted_straight
-print(f"Straight:\n{sorted_straight[0]}")
-print(list_of_all_hands[-1])
+print("Straight:")
+place = make_tiers(straight_list, place, list_of_all_hands)
 
 # THREE OF A KIND:
 three_list = [(hand, {'tier0': 5, 'tier1': get_n(hand)}) for hand in data["three kind"]]
-sorted_three = sorted(three_list, key = lambda x: (x[1]['tier0'], x[1]['tier1']))
-place = 1323
-current = sorted_three[0][1]['tier1']
-for item in sorted_three:
-    if item[1]['tier1'] > current:
-        place += 1
-        current = item[1]['tier1']
-    item[1]['place'] = place
-list_of_all_hands += sorted_three
-print(f"Three of a kind:\n{sorted_three[0]}")
-print(list_of_all_hands[-1])
+print("Three of a kind:")
+place = make_tiers(three_list, place, list_of_all_hands)
 
 # TWO PAIR:
 two_pair_list = [(hand, {'tier0': 6, 'tier1': get_pairs(hand)}) for hand in data["two pair"]]
-sorted_two_pair = sorted(two_pair_list, key = lambda x: (x[1]['tier0'], x[1]['tier1']))
-place = 1336
-current = sorted_two_pair[0][1]['tier1']
-for item in sorted_two_pair:
-    if item[1]['tier1'] > current:
-        place += 1
-        current = item[1]['tier1']
-    item[1]['place'] = place
-list_of_all_hands += sorted_two_pair
-print(f"Two pairs:\n{sorted_two_pair[0]}")
-print(list_of_all_hands[-1])
+print("Two pairs:")
+place = make_tiers(two_pair_list, place, list_of_all_hands)
 
 # PAIR:
 pair_list = [(hand, {'tier0': 7, 'tier1': get_pairs(hand)}) for hand in data["pair"]]
-sorted_pair = sorted(pair_list, key = lambda x: (x[1]['tier0'], x[1]['tier1']))
-place = 2194
-current = sorted_pair[0][1]['tier1']
-for item in sorted_pair:
-    if item[1]['tier1'] != current:
-        place += 1
-        current = item[1]['tier1']
-    item[1]['place'] = place
-list_of_all_hands += sorted_pair
-print(f"Pair:\n{sorted_pair[0]}")
-print(list_of_all_hands[-1])
+print("Pair:")
+place = make_tiers(pair_list, place, list_of_all_hands)
 
 # SINGLE:
-single_list = [(hand, {'tier0': 8, 'tier1': list(map(lambda x: rank_orders[x[0]], hand))}) for hand in data["single"]]
-sorted_single = sorted(single_list, key = lambda x: (x[1]['tier0'], x[1]['tier1']))
-place = 5054
-current = sorted_single[0][1]['tier1']
-for item in sorted_single:
-    if item[1]['tier1'] != current:
-        place += 1
-        current = item[1]['tier1']
-    item[1]['place'] = place
-list_of_all_hands += sorted_single
-print(f"High card:\n{sorted_single[0]}")
-print(list_of_all_hands[-1])
+single_list = [(hand, {'tier0': 8, 'tier1': get_single(hand)}) for hand in data["single"]]
+print("Single:")
+place = make_tiers(single_list, place, list_of_all_hands)
 
 with open('all_hands_ranked.pickle' , 'wb') as file:  # store dict as file
     pickle.dump(list_of_all_hands, file)
