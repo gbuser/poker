@@ -35,10 +35,14 @@ def handle_client(conn, addr):
             random.shuffle(deck)
             hand = deal_cards(5, deck)
             hand = sort_hand(hand)
-            msg = str(data[hand]['tier0'])
+            #msg = str(data[hand]['tier0'])
+            conn.send(string_hand(hand).encode(FORMAT))
+            hand = deal_cards(5, deck)
+            hand = sort_hand(hand)
+            # msg = str(data[hand]['tier0'])
             conn.send(string_hand(hand).encode(FORMAT))
             print(msg)
-            conn.send(msg.encode(FORMAT))
+            #conn.send(msg.encode(FORMAT))
             if msg == DISCONNECT:
                 connected = False
                 conn.close()
