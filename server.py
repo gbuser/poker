@@ -38,7 +38,7 @@ def handle_client(conn, addr):
             #msg = str(data[hand]['tier0'])
             conn.send(string_hand(hand).encode(FORMAT))
             conn.send("test".encode(FORMAT))
-            print(msg)
+            #print(msg)
             #conn.send(msg.encode(FORMAT))
             if msg == DISCONNECT:
                 connected = False
